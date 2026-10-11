@@ -328,6 +328,33 @@ INTF_ACTION_HANDLER(PlayerSeek)
         vlc_player_JumpTime(player, vlc_tick_from_sec(jmpsz * sign));
 }
 
+INTF_ACTION_HANDLER(PlayerSeekPercent)
+{
+    vlc_player_t *player = vlc_playlist_GetPlayer(intf->p_sys->playlist);
+    if (!vlc_player_CanSeek(player))
+        return;
+
+    double pos = 0.0;
+    switch (action_id)
+    {
+        case ACTIONID_SEEK_PERCENT_0:  pos = 0.0; break;
+        case ACTIONID_SEEK_PERCENT_10: pos = 0.1; break;
+        case ACTIONID_SEEK_PERCENT_20: pos = 0.2; break;
+        case ACTIONID_SEEK_PERCENT_30: pos = 0.3; break;
+        case ACTIONID_SEEK_PERCENT_40: pos = 0.4; break;
+        case ACTIONID_SEEK_PERCENT_50: pos = 0.5; break;
+        case ACTIONID_SEEK_PERCENT_60: pos = 0.6; break;
+        case ACTIONID_SEEK_PERCENT_70: pos = 0.7; break;
+        case ACTIONID_SEEK_PERCENT_80: pos = 0.8; break;
+        case ACTIONID_SEEK_PERCENT_90: pos = 0.9; break;
+        default:
+            vlc_assert_unreachable();
+    }
+
+    vlc_player_SetPosition(player, pos);
+    vlc_player_DisplayPosition(player);
+}
+
 PLAYER_ACTION_HANDLER(Position)
 {
     VLC_UNUSED(action_id); VLC_UNUSED(intf);
@@ -987,6 +1014,7 @@ static struct vlc_action const actions[] =
     VLC_ACTION_PLAYER(PLAY_PAUSE, FRAME_NEXT, State, true)
     VLC_ACTION_PLAYER(PLAY_PAUSE, FRAME_PREVIOUS, State, true)
     VLC_ACTION_INTF(JUMP_BACKWARD_EXTRASHORT, JUMP_FORWARD_LONG, PlayerSeek, true)
+    VLC_ACTION_INTF(SEEK_PERCENT_0, SEEK_PERCENT_90, PlayerSeekPercent, true)
     VLC_ACTION_PLAYER(POSITION, POSITION, Position, true)
     VLC_ACTION_PLAYER(PROGRAM_SID_PREV, DISC_MENU, NavigateMedia, true)
     VLC_ACTION_PLAYER(AUDIO_TRACK, SUBTITLE_TRACK, Track, true)
