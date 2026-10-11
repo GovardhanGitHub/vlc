@@ -245,7 +245,10 @@ vlc_player_mainloop_Thread(void *data)
         }
 
         if (timeout && player->input != NULL)
+        {
             vlc_player_input_HandleAtoBLoop(player->input, true);
+            vlc_player_input_HandleSkipRanges(player->input);
+        }
 
         struct vlc_player_input *input;
         vlc_list_foreach(input, &player->mainloop.stop_inputs, node)
@@ -1722,6 +1725,108 @@ vlc_player_GetAtoBLoop(vlc_player_t *player, vlc_tick_t *a_time, double *a_pos,
     return VLC_PLAYER_ABLOOP_B;
 }
 
+static int skip_range_cmp(const void *a, const void *b)
+{
+    const vlc_player_skip_range_t *ra = a;
+    const vlc_player_skip_range_t *rb = b;
+    if (ra->start < rb->start) return -1;
+    if (ra->start > rb->start) return 1;
+    if (ra->end < rb->end) return -1;
+    if (ra->end > rb->end) return 1;
+    return 0;
+}
+
+int
+vlc_player_AddSkipRange(vlc_player_t *player, vlc_tick_t start, vlc_tick_t end, const char *psz_label)
+{
+    if (end <= start)
+        return VLC_EINVAL;
+
+    if (player->skip_state.count == player->skip_state.cap)
+    {
+        size_t new_cap = player->skip_state.cap == 0 ? 8 : player->skip_state.cap * 2;
+        vlc_player_skip_range_t *new_ranges = realloc(player->skip_state.ranges,
+                                                      new_cap * sizeof(*new_ranges));
+        if (!new_ranges)
+            return VLC_ENOMEM;
+        player->skip_state.ranges = new_ranges;
+        player->skip_state.cap = new_cap;
+    }
+
+    vlc_player_skip_range_t *range = &player->skip_state.ranges[player->skip_state.count++];
+    range->start = start;
+    range->end = end;
+    range->psz_label = psz_label ? strdup(psz_label) : NULL;
+    range->enabled = true;
+
+    return VLC_SUCCESS;
+}
+
+void
+vlc_player_ClearSkipRanges(vlc_player_t *player)
+{
+    for (size_t i = 0; i < player->skip_state.count; ++i)
+        free(player->skip_state.ranges[i].psz_label);
+    free(player->skip_state.ranges);
+    player->skip_state.ranges = NULL;
+    player->skip_state.count = 0;
+    player->skip_state.cap = 0;
+    player->skip_state.last_skipped_end = VLC_TICK_INVALID;
+}
+
+size_t
+vlc_player_MergeSkipRanges(vlc_player_t *player)
+{
+    if (player->skip_state.count <= 1)
+        return player->skip_state.count;
+
+    qsort(player->skip_state.ranges, player->skip_state.count,
+          sizeof(vlc_player_skip_range_t), skip_range_cmp);
+
+    size_t merged_idx = 0;
+    for (size_t i = 1; i < player->skip_state.count; ++i)
+    {
+        vlc_player_skip_range_t *curr = &player->skip_state.ranges[merged_idx];
+        vlc_player_skip_range_t *next = &player->skip_state.ranges[i];
+
+        if (next->start <= curr->end)
+        {
+            /* Overlapping or contiguous interval: merge */
+            if (next->end > curr->end)
+                curr->end = next->end;
+            if (!curr->enabled || !next->enabled)
+                curr->enabled = curr->enabled || next->enabled;
+            free(next->psz_label);
+        }
+        else
+        {
+            merged_idx++;
+            player->skip_state.ranges[merged_idx] = *next;
+        }
+    }
+
+    player->skip_state.count = merged_idx + 1;
+    return player->skip_state.count;
+}
+
+size_t
+vlc_player_GetSkipRangesCount(vlc_player_t *player)
+{
+    return player->skip_state.count;
+}
+
+void
+vlc_player_SetAutoSkipEnabled(vlc_player_t *player, bool enabled)
+{
+    player->skip_state.enabled = enabled;
+}
+
+bool
+vlc_player_IsAutoSkipEnabled(vlc_player_t *player)
+{
+    return player->skip_state.enabled;
+}
+
 void
 vlc_player_Navigate(vlc_player_t *player, enum vlc_player_nav nav)
 {
@@ -2075,6 +2180,7 @@ vlc_player_Delete(vlc_player_t *player)
     free(player->sub_string_ids);
 
     vlc_player_DestroyTimer(player);
+    vlc_player_ClearSkipRanges(player);
 
     vlc_player_aout_Deinit(player);
     var_DelCallback(player, "corks", vlc_player_CorkCallback, player);
@@ -2130,6 +2236,12 @@ vlc_player_New(vlc_object_t *parent, enum vlc_player_lock_type lock_type)
 
     player->play_and_pause = false;
     player->repeat = 0;
+
+    player->skip_state.ranges = NULL;
+    player->skip_state.count = 0;
+    player->skip_state.cap = 0;
+    player->skip_state.enabled = true;
+    player->skip_state.last_skipped_end = VLC_TICK_INVALID;
 
 #define VAR_CREATE(var, flag) do { \
     if (var_Create(player, var, flag) != VLC_SUCCESS) \

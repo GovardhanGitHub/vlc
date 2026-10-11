@@ -876,6 +876,76 @@ vlc_player_GetAtoBLoop(vlc_player_t *player, vlc_tick_t *a_time, double *a_pos,
                        vlc_tick_t *b_time, double *b_pos);
 
 /**
+ * Skip timing interval definition
+ */
+typedef struct vlc_player_skip_range {
+    vlc_tick_t start;       /**< Start timestamp of segment to skip */
+    vlc_tick_t end;         /**< End timestamp where playback should resume */
+    char *psz_label;        /**< Optional label (e.g. Intro, Sponsor, Recap) */
+    bool enabled;           /**< Whether this skip range is active */
+} vlc_player_skip_range_t;
+
+/**
+ * Add a skip timing range to the player.
+ * When playback reaches [start, end), the player will auto-skip forward to end.
+ *
+ * @param player locked player instance
+ * @param start start time to skip from
+ * @param end end time to skip to (must be > start)
+ * @param psz_label label/category (can be NULL)
+ * @return VLC_SUCCESS or VLC_EINVAL
+ */
+VLC_API int
+vlc_player_AddSkipRange(vlc_player_t *player, vlc_tick_t start, vlc_tick_t end, const char *psz_label);
+
+/**
+ * Remove all skip ranges from the player.
+ *
+ * @param player locked player instance
+ */
+VLC_API void
+vlc_player_ClearSkipRanges(vlc_player_t *player);
+
+/**
+ * Merge overlapping or contiguous skip timing intervals.
+ *
+ * If two or more skip ranges overlap (e.g. [10s, 30s] and [25s, 50s]),
+ * they are merged into a single continuous range [10s, 50s].
+ *
+ * @param player locked player instance
+ * @return the new total number of skip ranges after merging
+ */
+VLC_API size_t
+vlc_player_MergeSkipRanges(vlc_player_t *player);
+
+/**
+ * Get the current count of skip ranges.
+ *
+ * @param player locked player instance
+ * @return count of skip ranges
+ */
+VLC_API size_t
+vlc_player_GetSkipRangesCount(vlc_player_t *player);
+
+/**
+ * Enable or disable auto-skipping during playback.
+ *
+ * @param player locked player instance
+ * @param enabled true to enable auto-skipping, false to disable
+ */
+VLC_API void
+vlc_player_SetAutoSkipEnabled(vlc_player_t *player, bool enabled);
+
+/**
+ * Check if auto-skipping is enabled.
+ *
+ * @param player locked player instance
+ * @return true if enabled
+ */
+VLC_API bool
+vlc_player_IsAutoSkipEnabled(vlc_player_t *player);
+
+/**
  * Navigate (for DVD/Bluray menus or viewpoint)
  *
  * @param player locked player instance
