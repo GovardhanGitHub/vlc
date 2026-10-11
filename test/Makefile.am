@@ -9,6 +9,7 @@ AUTOMAKE_OPTIONS = subdir-objects
 ###############################################################################
 player_programs = \
 	test_src_player_abloop \
+	test_src_player_skip_ranges \
 	test_src_player_attachments \
 	test_src_player_capabilities \
 	test_src_player_discontinuities \
@@ -245,6 +246,9 @@ test_src_preparser_thumbnail_to_files_LDADD = $(LIBVLCCORE) $(LIBVLC)
 test_src_player_abloop_SOURCES = src/player/common.h src/player/modules.c \
 	src/player/abloop.c src/player/timers.h
 test_src_player_abloop_LDADD = $(LIBVLCCORE) $(LIBVLC) $(LIBM)
+test_src_player_skip_ranges_SOURCES = src/player/common.h src/player/modules.c \
+	src/player/skip_ranges.c
+test_src_player_skip_ranges_LDADD = $(LIBVLCCORE) $(LIBVLC) $(LIBM)
 test_src_player_attachments_SOURCES = src/player/common.h src/player/modules.c \
 	src/player/attachments.c
 test_src_player_attachments_LDADD = $(LIBVLCCORE) $(LIBVLC) $(LIBM)

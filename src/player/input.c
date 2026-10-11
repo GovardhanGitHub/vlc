@@ -95,6 +95,48 @@ vlc_player_input_HandleAtoBLoop(struct vlc_player_input *input, bool forced)
     return false;
 }
 
+bool
+vlc_player_input_HandleSkipRanges(struct vlc_player_input *input)
+{
+    vlc_player_t *player = input->player;
+    if (!player->skip_state.enabled || player->skip_state.count == 0
+     || (input->capabilities & VLC_PLAYER_CAP_SEEK) == 0)
+        return false;
+
+    if (player->input != input)
+        return false;
+
+    vlc_tick_t now = vlc_tick_now();
+    vlc_tick_t time = vlc_player_input_GetTime(input, false, now);
+    if (time == VLC_TICK_INVALID)
+        return false;
+
+    for (size_t i = 0; i < player->skip_state.count; ++i)
+    {
+        vlc_player_skip_range_t *range = &player->skip_state.ranges[i];
+        if (!range->enabled)
+            continue;
+
+        if (time >= range->start && time < range->end)
+        {
+            if (player->skip_state.last_skipped_end != range->end)
+            {
+                player->skip_state.last_skipped_end = range->end;
+                vlc_player_SetTime(player, range->end);
+                return true;
+            }
+        }
+    }
+
+    if (player->skip_state.last_skipped_end != VLC_TICK_INVALID &&
+        time > player->skip_state.last_skipped_end + VLC_TICK_FROM_SEC(1))
+    {
+        player->skip_state.last_skipped_end = VLC_TICK_INVALID;
+    }
+
+    return false;
+}
+
 int
 vlc_player_input_Start(struct vlc_player_input *input)
 {
@@ -1066,6 +1108,7 @@ input_thread_Events(input_thread_t *input_thread,
                                      input->time, input->position);
 
                 vlc_player_input_HandleAtoBLoop(input, false);
+                vlc_player_input_HandleSkipRanges(input);
             }
             if (input->length != duration)
             {

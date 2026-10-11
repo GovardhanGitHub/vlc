@@ -1364,6 +1364,27 @@ static const char *const mouse_wheel_texts[] = {
 #define POSITION_KEY_TEXT N_("Position")
 #define POSITION_KEY_LONGTEXT N_("Select the hotkey to display the position.")
 
+#define SEEK_PERCENT_0_KEY_TEXT N_("Seek to 0%")
+#define SEEK_PERCENT_0_KEY_LONGTEXT N_("Select the hotkey to seek to 0% of playback (YouTube percentage navigation).")
+#define SEEK_PERCENT_10_KEY_TEXT N_("Seek to 10%")
+#define SEEK_PERCENT_10_KEY_LONGTEXT N_("Select the hotkey to seek to 10% of playback (YouTube percentage navigation).")
+#define SEEK_PERCENT_20_KEY_TEXT N_("Seek to 20%")
+#define SEEK_PERCENT_20_KEY_LONGTEXT N_("Select the hotkey to seek to 20% of playback (YouTube percentage navigation).")
+#define SEEK_PERCENT_30_KEY_TEXT N_("Seek to 30%")
+#define SEEK_PERCENT_30_KEY_LONGTEXT N_("Select the hotkey to seek to 30% of playback (YouTube percentage navigation).")
+#define SEEK_PERCENT_40_KEY_TEXT N_("Seek to 40%")
+#define SEEK_PERCENT_40_KEY_LONGTEXT N_("Select the hotkey to seek to 40% of playback (YouTube percentage navigation).")
+#define SEEK_PERCENT_50_KEY_TEXT N_("Seek to 50%")
+#define SEEK_PERCENT_50_KEY_LONGTEXT N_("Select the hotkey to seek to 50% of playback (YouTube percentage navigation).")
+#define SEEK_PERCENT_60_KEY_TEXT N_("Seek to 60%")
+#define SEEK_PERCENT_60_KEY_LONGTEXT N_("Select the hotkey to seek to 60% of playback (YouTube percentage navigation).")
+#define SEEK_PERCENT_70_KEY_TEXT N_("Seek to 70%")
+#define SEEK_PERCENT_70_KEY_LONGTEXT N_("Select the hotkey to seek to 70% of playback (YouTube percentage navigation).")
+#define SEEK_PERCENT_80_KEY_TEXT N_("Seek to 80%")
+#define SEEK_PERCENT_80_KEY_LONGTEXT N_("Select the hotkey to seek to 80% of playback (YouTube percentage navigation).")
+#define SEEK_PERCENT_90_KEY_TEXT N_("Seek to 90%")
+#define SEEK_PERCENT_90_KEY_LONGTEXT N_("Select the hotkey to seek to 90% of playback (YouTube percentage navigation).")
+
 #define JBEXTRASHORT_KEY_TEXT N_("Very short backwards jump")
 #define JBEXTRASHORT_KEY_LONGTEXT \
     N_("Select the hotkey to make a very short backwards jump.")
@@ -2433,6 +2454,18 @@ vlc_module_begin ()
 #   define KEY_AUDIODEVICE_CYCLE  "Shift+a"
 #   define KEY_PLAY_CLEAR         NULL
 
+    /* YouTube-style number keys seek (0-90%) */
+#   define KEY_SEEK_PERCENT_0     "0"
+#   define KEY_SEEK_PERCENT_10    "1"
+#   define KEY_SEEK_PERCENT_20    "2"
+#   define KEY_SEEK_PERCENT_30    "3"
+#   define KEY_SEEK_PERCENT_40    "4"
+#   define KEY_SEEK_PERCENT_50    "5"
+#   define KEY_SEEK_PERCENT_60    "6"
+#   define KEY_SEEK_PERCENT_70    "7"
+#   define KEY_SEEK_PERCENT_80    "8"
+#   define KEY_SEEK_PERCENT_90    "9"
+
 #else /* Non Mac OS X */
     /*
        You should try to avoid Ctrl + letter key, because they are usually for
@@ -2583,6 +2616,18 @@ vlc_module_begin ()
 
 /* Play Queue clear */
 #   define KEY_PLAY_CLEAR         "Ctrl+w"
+
+    /* YouTube-style number keys seek (0-90%) */
+#   define KEY_SEEK_PERCENT_0     "0"
+#   define KEY_SEEK_PERCENT_10    "1"
+#   define KEY_SEEK_PERCENT_20    "2"
+#   define KEY_SEEK_PERCENT_30    "3"
+#   define KEY_SEEK_PERCENT_40    "4"
+#   define KEY_SEEK_PERCENT_50    "5"
+#   define KEY_SEEK_PERCENT_60    "6"
+#   define KEY_SEEK_PERCENT_70    "7"
+#   define KEY_SEEK_PERCENT_80    "8"
+#   define KEY_SEEK_PERCENT_90    "9"
 #endif
 
     add_key("key-toggle-fullscreen", KEY_TOGGLE_FULLSCREEN,
@@ -2607,6 +2652,27 @@ vlc_module_begin ()
     add_key("key-stop", KEY_STOP, STOP_KEY_TEXT, STOP_KEY_LONGTEXT)
     add_key("key-position", KEY_POSITION, POSITION_KEY_TEXT,
              POSITION_KEY_LONGTEXT)
+
+    add_key("key-seek-percent-0", KEY_SEEK_PERCENT_0,
+            SEEK_PERCENT_0_KEY_TEXT, SEEK_PERCENT_0_KEY_LONGTEXT)
+    add_key("key-seek-percent-10", KEY_SEEK_PERCENT_10,
+            SEEK_PERCENT_10_KEY_TEXT, SEEK_PERCENT_10_KEY_LONGTEXT)
+    add_key("key-seek-percent-20", KEY_SEEK_PERCENT_20,
+            SEEK_PERCENT_20_KEY_TEXT, SEEK_PERCENT_20_KEY_LONGTEXT)
+    add_key("key-seek-percent-30", KEY_SEEK_PERCENT_30,
+            SEEK_PERCENT_30_KEY_TEXT, SEEK_PERCENT_30_KEY_LONGTEXT)
+    add_key("key-seek-percent-40", KEY_SEEK_PERCENT_40,
+            SEEK_PERCENT_40_KEY_TEXT, SEEK_PERCENT_40_KEY_LONGTEXT)
+    add_key("key-seek-percent-50", KEY_SEEK_PERCENT_50,
+            SEEK_PERCENT_50_KEY_TEXT, SEEK_PERCENT_50_KEY_LONGTEXT)
+    add_key("key-seek-percent-60", KEY_SEEK_PERCENT_60,
+            SEEK_PERCENT_60_KEY_TEXT, SEEK_PERCENT_60_KEY_LONGTEXT)
+    add_key("key-seek-percent-70", KEY_SEEK_PERCENT_70,
+            SEEK_PERCENT_70_KEY_TEXT, SEEK_PERCENT_70_KEY_LONGTEXT)
+    add_key("key-seek-percent-80", KEY_SEEK_PERCENT_80,
+            SEEK_PERCENT_80_KEY_TEXT, SEEK_PERCENT_80_KEY_LONGTEXT)
+    add_key("key-seek-percent-90", KEY_SEEK_PERCENT_90,
+            SEEK_PERCENT_90_KEY_TEXT, SEEK_PERCENT_90_KEY_LONGTEXT)
     add_key("key-jump-extrashort", KEY_JUMP_MEXTRASHORT,
              JBEXTRASHORT_KEY_TEXT, JBEXTRASHORT_KEY_LONGTEXT)
     add_key("key-jump+extrashort", KEY_JUMP_PEXTRASHORT,

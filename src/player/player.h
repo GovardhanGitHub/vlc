@@ -309,6 +309,15 @@ struct vlc_player_t
     } mainloop;
 
     struct vlc_player_timer timer;
+
+    /* Skip timings state */
+    struct {
+        vlc_player_skip_range_t *ranges;
+        size_t count;
+        size_t cap;
+        bool enabled;
+        vlc_tick_t last_skipped_end;
+    } skip_state;
 };
 
 #ifndef NDEBUG
@@ -501,6 +510,9 @@ vlc_player_input_HandleState(struct vlc_player_input *, enum vlc_player_state,
 
 bool
 vlc_player_input_HandleAtoBLoop(struct vlc_player_input *input, bool forced);
+
+bool
+vlc_player_input_HandleSkipRanges(struct vlc_player_input *input);
 
 /*
  * player_timer.c
